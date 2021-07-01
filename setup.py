@@ -36,8 +36,6 @@ setup_requires = [
 ]
 
 install_requires = [
-    'oarepo_records_draft',
-    'oarepo_references'
 ]
 
 packages = find_packages()

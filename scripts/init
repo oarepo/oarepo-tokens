@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2020 CESNET.
+#
+# invenio-integration-tests is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+
+set -e
+
+# elasticsearch install+run:
+# mkdir /tmp/elasticsearch
+# wget --no-verbose -O - ${ES_URL} | tar xz --directory=/tmp/elasticsearch --strip-components=1
+# /tmp/elasticsearch/bin/elasticsearch > /tmp/local-es.log &
+
+EXTRAS=tests
+
+pip install --upgrade pip setuptools py pip-tools
+pip install requirements-builder
+requirements-builder -e ${EXTRAS} setup.py | pip-compile -U -o .requirements.txt -

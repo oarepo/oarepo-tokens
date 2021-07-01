@@ -32,8 +32,8 @@ class OARepoAccessToken(db.Model, Timestamp):
     __tablename__ = 'oarepo_tokens'
 
     __table_args__ = (
-        #db.Index('uidx_type_pid', 'pid_type', 'pid_value', unique=True),
-        #db.UniqueConstraint('upload_id', 'bucket_id', 'key', name='uix_item'),
+        db.Index('uidx_token', 'token', unique=True),
+        db.Index('idx_rec_uuid', 'rec_uuid', unique=False),
     )
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

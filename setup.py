@@ -18,7 +18,11 @@ OAREPO_VERSION = os.environ.get('OAREPO_VERSION', '3.3.0')
 
 tests_require = [
     'pydocstyle',
-    'isort'
+    'isort',
+    'oarepo_records_draft',
+    'oarepo_validate',
+    'oarepo_references',
+    'oarepo_fsm',
 ]
 
 extras_require = {

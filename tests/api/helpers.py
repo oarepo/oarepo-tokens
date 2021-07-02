@@ -34,8 +34,8 @@ from .marshmallow import SampleSchemaV1
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 
-def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=None):
-    return dict(
+def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=None, draft=True):
+    endpoint = dict(
         pid_type=pid_type,
         pid_minter=pid_type,
         pid_fetcher=pid_type,
@@ -56,8 +56,8 @@ def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=N
             'application/json': ('invenio_records_rest.serializers'
                                  ':json_v1_search'),
         },
-        list_route='/draft/records/',
-        item_route='/draft/records/<pid(drcid,'
+        list_route=f"/{'draft/' if draft else ''}records/",
+        item_route=f"/{'draft/' if draft else ''}records/<pid(drcid,"
                       f'record_class="{record_class}")'
                       ':pid_value>',
         default_media_type='application/json',
@@ -73,6 +73,8 @@ def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=N
             delete_file_factory=put_file_token_permission_factory(default_permission_factory=permission_factory),
         ),
     )
+    if not draft: endpoint['draft'] = 'draft-record'
+    return endpoint
 
 
 def make_sample_token(uuid):

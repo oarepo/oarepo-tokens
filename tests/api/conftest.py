@@ -78,11 +78,11 @@ def app_config(app_config):
             'record': gen_rest_endpoint('recid',
                                               RecordsSearch,
                                               'tests.api.helpers.TestRecord',
-                                              permission_factory=deny_all),
+                                              permission_factory=deny_all, draft=False),
             'draft-record': gen_rest_endpoint('drcid',
                                               RecordsSearch,
                                               'tests.api.helpers.TestRecord',
-                                              permission_factory=deny_all)
+                                              permission_factory=deny_all, draft=True)
         },
         S3_TENANT=os.environ.get('S3_TENANT', None),
         S3_SIGNATURE_VERSION=os.environ.get('S3_SIGNATURE_VERSION', None),

@@ -23,6 +23,7 @@ tests_require = [
     'oarepo_validate',
     'oarepo_references',
     'oarepo_fsm',
+    'oarepo_multilingual',
 ]
 
 extras_require = {

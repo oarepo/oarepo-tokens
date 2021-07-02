@@ -75,14 +75,10 @@ def app_config(app_config):
         RATELIMIT_ENABLED=False,
         SEARCH_ELASTIC_HOSTS=os.environ.get('SEARCH_ELASTIC_HOSTS', None),
         RECORDS_DRAFT_ENDPOINTS={
-            'record': gen_rest_endpoint('recid',
-                                              RecordsSearch,
-                                              'tests.api.helpers.TestRecord',
-                                              permission_factory=deny_all, draft=False),
             'draft-record': gen_rest_endpoint('drcid',
                                               RecordsSearch,
                                               'tests.api.helpers.TestRecord',
-                                              permission_factory=deny_all, draft=True)
+                                              permission_factory=deny_all)
         },
         S3_TENANT=os.environ.get('S3_TENANT', None),
         S3_SIGNATURE_VERSION=os.environ.get('S3_SIGNATURE_VERSION', None),

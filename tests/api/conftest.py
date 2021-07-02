@@ -75,6 +75,7 @@ def app_config(app_config):
         RATELIMIT_ENABLED=False,
         SEARCH_ELASTIC_HOSTS=os.environ.get('SEARCH_ELASTIC_HOSTS', None),
         RECORDS_DRAFT_ENDPOINTS={
+            'record': { 'draft': 'draft-record' },
             'draft-record': gen_rest_endpoint('drcid',
                                               RecordsSearch,
                                               'tests.api.helpers.TestRecord',

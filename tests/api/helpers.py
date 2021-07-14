@@ -36,7 +36,6 @@ _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
 def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=None):
     return dict(
-        draft='draft-record',
         pid_type=pid_type,
         pid_minter=pid_type,
         pid_fetcher=pid_type,

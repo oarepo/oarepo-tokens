@@ -24,6 +24,8 @@ tests_require = [
     'oarepo_references',
     'oarepo_fsm',
     'oarepo_multilingual',
+    'moto',
+    'oarepo-s3',
 ]
 
 extras_require = {

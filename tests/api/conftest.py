@@ -33,6 +33,10 @@ from invenio_files_rest.models import Location
 
 from oarepo_tokens.views import blueprint
 from oarepo_tokens.models import OARepoAccessToken
+from moto import mock_s3
+from oarepo_s3.s3 import S3Client
+from s3_client_lib.utils import get_file_chunk_size
+from oarepo_s3 import S3FileStorage
 
 #from sample.models import SampleRecord
 #from invenio_records import Record
@@ -43,6 +47,49 @@ from .helpers import _test_login_factory, record_pid_minter, TestRecord
 # logging.basicConfig()
 # logging.getLogger('elasticsearch').setLevel(logging.DEBUG)
 # logging.getLogger().setLevel(logging.DEBUG)
+
+
+class MockedS3Client(S3Client):
+    """Fake S3 client."""
+    parts = []
+
+    def init_multipart_upload(self, bucket, object_name, object_size):
+        """Fake init multipart upload implementation."""
+        max_parts, chunk_size = get_file_chunk_size(object_size)
+        parts = [f'http://localhost/test/{i}' for i in range(1, max_parts + 1)]
+        return {"parts_url": parts,
+                "chunk_size": chunk_size,
+                "checksum_update": "",
+                # "upload_id": str(uuid.uuid4()),
+                "upload_id": 'qwerty456',
+                "origin": "",
+                "num_chunks": max_parts,
+                "finish_url": ""
+                }
+
+    def create_multipart_upload(self, bucket, key, content_type, metadata=None):
+        return {
+            'key': key,
+            'bucket': bucket,
+            # "upload_id": str(uuid.uuid4()),
+            'upload_id': 'qwerty567'
+        }
+
+    def get_uploaded_parts(self, bucket, key, upload_id):
+        """Fake list parts that have been fully uploaded so far."""
+        return self.parts
+
+    def _add_part(self):
+        self.parts += 1
+        return self.parts
+
+    def complete_multipart_upload(self, bucket, key, upload_id, parts):
+        """Faked complete of a multipart upload to AWS S3."""
+        return {'status': 'completed', 'ETag': 'etag:test'}
+
+    def abort_multipart_upload(self, bucket, key, upload_id):
+        """Faked cancel of an in-progress multipart upload to AWS S3."""
+        return {'status': 'aborted'}
 
 
 @pytest.fixture(scope='module')
@@ -86,7 +133,15 @@ def app_config(app_config):
         S3_ACCESS_KEY_ID=os.environ.get('S3_ACCESS_KEY_ID', None),
         S3_SECRET_ACCESS_KEY=os.environ.get('S3_SECRET_ACCESS_KEY', None),
     )
-    app_config.pop('RATELIMIT_STORAGE_URL', None)
+    app_config.update(dict(
+    #     RATELIMIT_STORAGE_URL=None,
+        FILES_REST_STORAGE_FACTORY='oarepo_s3.storage.s3_storage_factory',
+        S3_ENDPOINT_URL=None,
+        S3_CLIENT='tests.api.conftest.MockedS3Client',
+        S3_ACCESS_KEY_ID='test',
+        S3_SECRECT_ACCESS_KEY='test',
+        FILES_REST_MULTIPART_CHUNKSIZE_MIN=5 * 1024 * 1024,
+    ))
     return app_config
 
 
@@ -138,19 +193,20 @@ def client(app, s3_location):
 @pytest.fixture(scope='function')
 def s3_bucket(appctx, base_app):
     """S3 bucket fixture."""
-    # with mock_s3():
-    # conn = boto3.resource('s3', region_name='us-east-1')
-    conn = boto3.resource('s3', region_name='storage',
-                          endpoint_url=base_app.config['S3_ENDPOINT_URL'],
-                          aws_access_key_id=base_app.config['S3_ACCESS_KEY_ID'],
-                          aws_secret_access_key=base_app.config['S3_SECRET_ACCESS_KEY'])
-    bucket = conn.create_bucket(Bucket='test_oarepo')
+    with mock_s3():
+        conn = boto3.resource('s3', region_name='us-east-1')
+        # conn = boto3.resource('s3', region_name='us-east-1', endpoint_url=base_app.config['S3_ENDPOINT_URL'])
+        # conn = boto3.resource('s3', region_name='storage',
+        #                       endpoint_url=base_app.config['S3_ENDPOINT_URL'],
+        #                       aws_access_key_id=base_app.config['S3_ACCESS_KEY_ID'],
+        #                       aws_secret_access_key=base_app.config['S3_SECRET_ACCESS_KEY'])
+        bucket = conn.create_bucket(Bucket='test_oarepo')
 
-    yield bucket
+        yield bucket
 
-    for obj in bucket.objects.all():
-        obj.delete()
-    bucket.delete()
+        for obj in bucket.objects.all():
+            obj.delete()
+        bucket.delete()
 
 @pytest.fixture(scope='function')
 def s3_testpath(s3_bucket):
@@ -198,7 +254,7 @@ def sample_upload_data():
 
 
 @pytest.fixture()
-def draft_record(app, app_config, db, s3_location):
+def draft_record(app, app_config, db, s3_location, s3_bucket, s3storage):
     """Minimal Record object."""
     record_uuid = uuid.uuid4()
     # SampleDraftRecord._prepare_schemas()

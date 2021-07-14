@@ -43,6 +43,47 @@ def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=N
         search_class=search_class,
         indexer_class=RecordIndexer,
 #        links_factory_imp=community_record_links_factory,
+        search_index='records-record-v1.0.0',
+        search_type='_doc',
+        record_class=record_class,
+#        record_loaders={
+#            'application/json': 'oarepo_communities.loaders:community_json_loader',
+#        },
+        record_serializers={
+            'application/json': ('invenio_records_rest.serializers'
+                                 ':json_v1_response'),
+        },
+        search_serializers={
+            'application/json': ('invenio_records_rest.serializers'
+                                     ':json_v1_search'),
+        },
+        list_route='/records/',
+        item_route='/records/<pid(drcid,'
+                      f'record_class="{record_class}")'
+                      ':pid_value>',
+        default_media_type='application/json',
+        max_result_window=10000,
+        error_handlers=dict(),
+        read_permission_factory_imp=permission_factory,
+        create_permission_factory_imp=permission_factory,
+        update_permission_factory_imp=permission_factory,
+        delete_permission_factory_imp=permission_factory,
+        files=dict(
+            put_file_factory=put_file_token_permission_factory(default_permission_factory=permission_factory),
+            get_file_factory=put_file_token_permission_factory(default_permission_factory=permission_factory),
+            delete_file_factory=put_file_token_permission_factory(default_permission_factory=permission_factory),
+        ),
+    )
+
+def gen_rest_endpoint_draft(pid_type, search_class, record_class, permission_factory=None):
+    return dict(
+        draft='draft-record',
+        pid_type=pid_type,
+        pid_minter=pid_type,
+        pid_fetcher=pid_type,
+        search_class=search_class,
+        indexer_class=RecordIndexer,
+#        links_factory_imp=community_record_links_factory,
         search_index='draft-records-record-v1.0.0',
         search_type='_doc',
         record_class=record_class,

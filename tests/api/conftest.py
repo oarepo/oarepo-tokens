@@ -23,7 +23,7 @@ from pathlib import Path
 from invenio_accounts.models import User
 from invenio_accounts.testutils import create_test_user
 from invenio_app.factory import create_api
-from tests.api.helpers import gen_rest_endpoint, _test_login_factory
+from tests.api.helpers import gen_rest_endpoint, gen_rest_endpoint_draft, _test_login_factory
 from invenio_indexer.api import RecordIndexer
 from invenio_search import RecordsSearch, current_search_client
 from invenio_search.cli import destroy, init
@@ -122,7 +122,11 @@ def app_config(app_config):
         RATELIMIT_ENABLED=False,
         SEARCH_ELASTIC_HOSTS=os.environ.get('SEARCH_ELASTIC_HOSTS', None),
         RECORDS_DRAFT_ENDPOINTS={
-            'draft-record': gen_rest_endpoint('drcid',
+            'record': gen_rest_endpoint('recid',
+                                              RecordsSearch,
+                                              'tests.api.helpers.TestRecord',
+                                              permission_factory=deny_all),
+            'draft-record': gen_rest_endpoint_draft('drcid',
                                               RecordsSearch,
                                               'tests.api.helpers.TestRecord',
                                               permission_factory=deny_all)

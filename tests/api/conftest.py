@@ -141,6 +141,8 @@ def app_config(app_config):
         S3_ACCESS_KEY_ID='test',
         S3_SECRECT_ACCESS_KEY='test',
         FILES_REST_MULTIPART_CHUNKSIZE_MIN=5 * 1024 * 1024,
+        OAREPO_TOKENS_TOKEN_NAME='_oarepo_upload_token',
+        OAREPO_TOKENS_TOKEN_TTL=600,
     ))
     return app_config
 

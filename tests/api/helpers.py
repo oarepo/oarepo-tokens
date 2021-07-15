@@ -185,6 +185,7 @@ class TestRecord(MarshmallowValidatedRecordMixin,
     """Reference enabled test record class."""
     __test__ = False
     # ALLOWED_SCHEMAS = SAMPLE_ALLOWED_SCHEMAS
+    ALLOWED_SCHEMAS = ['sample/sample-v1.0.0.json']
     # PREFERRED_SCHEMA = SAMPLE_PREFERRED_SCHEMA
     # MARSHMALLOW_SCHEMA = TestSchema
     MARSHMALLOW_SCHEMA = SampleSchemaV1

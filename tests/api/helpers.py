@@ -24,6 +24,7 @@ from invenio_pidstore.providers.recordid import RecordIdProvider
 from oarepo_validate import MarshmallowValidatedRecordMixin, SchemaKeepingRecordMixin
 from oarepo_references.mixins import InlineReferenceMixin, ReferenceByLinkFieldMixin, ReferenceEnabledRecordMixin
 from invenio_records_rest.schemas.fields import SanitizedUnicode
+from invenio_records_rest.utils import allow_all, deny_all
 
 #from oarepo_tokens.api import OARepoCommunity
 from oarepo_tokens.models import OARepoAccessToken
@@ -104,7 +105,7 @@ def gen_rest_endpoint_draft(pid_type, search_class, record_class, permission_fac
         default_media_type='application/json',
         max_result_window=10000,
         error_handlers=dict(),
-        read_permission_factory_imp=permission_factory,
+        read_permission_factory_imp=allow_all,
         create_permission_factory_imp=permission_factory,
         update_permission_factory_imp=permission_factory,
         delete_permission_factory_imp=permission_factory,

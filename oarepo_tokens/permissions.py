@@ -19,9 +19,9 @@ def token_permission_impl():
     def inner(record, *args, **kwargs):
         token_string = get_token_from_headers(request)
         if check_token_with_record(token_string, record):
-            return allow_all()
+            return allow_all
         else:
-            return deny_all()
+            return deny_all
 
     return inner
 

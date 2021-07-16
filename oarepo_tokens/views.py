@@ -124,14 +124,9 @@ class AccessTokenAction(MethodView):
             **token.to_json(),
             'links': token_links_factory(token),
             # 'links': {
-            #     'token_detail': url_for('oarepo_tokens.token_detail', token_id=token.id, _external=True),
-            #     'init_upload': rec['init_upload']
                 # 'create_token': url_for('oarepo_records_draft.draft-record_access_token', rec_uuid=record.id,
                 #                         _external=True),
-                # 'upload': url_for('oarepo_records_draft.draft-record_files', rec_uuid=record.id,
-                #                   _external=True)
             # }
-            #            'links': token_links_factory(token)
         })
 
 

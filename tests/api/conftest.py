@@ -139,6 +139,7 @@ def app_config(app_config):
     )
     app_config.update(dict(
     #     RATELIMIT_STORAGE_URL=None,
+        CELERY_ALWAYS_EAGER=True,
         FILES_REST_STORAGE_FACTORY='oarepo_s3.storage.s3_storage_factory',
         S3_ENDPOINT_URL=None,
         S3_CLIENT='tests.api.conftest.MockedS3Client',
@@ -260,7 +261,7 @@ def sample_upload_data():
 
 
 @pytest.fixture()
-def draft_record(app, app_config, db, s3_location, s3_bucket, s3storage):
+def draft_record(app, app_config, db, s3_location, s3_bucket, s3storage, prepare_es):
     """Minimal Record object."""
     record_uuid = uuid.uuid4()
     # SampleDraftRecord._prepare_schemas()
@@ -314,3 +315,16 @@ def test_blueprint(users, base_app):
 
     base_app.register_blueprint(blue)
     return blue
+
+@pytest.fixture()
+def prepare_es(app, db):
+    """Prepare ES indices."""
+    return
+
+@pytest.fixture(scope='session')
+def celery_config():
+    """Celery worker config."""
+    return {
+        'result_backend': 'rpc',
+        'task_always_eager': True
+    }

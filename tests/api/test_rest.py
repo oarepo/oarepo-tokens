@@ -49,6 +49,8 @@ def test_create_token(app_config, client, draft_record):
     newtoken = OARepoAccessToken.get_by_token(newtoken_string)
     assert newtoken.is_valid()
 
+def test_mocked_s3_client(app_config):
+    assert app_config['S3_CLIENT'] == 'tests.api.conftest.MockedS3Client'
 
 def test_upload_abort(app, app_config, client, oartoken, draft_record, sample_upload_data):
     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
@@ -129,7 +131,8 @@ def test_upload_complete(app, app_config, client, oartoken, draft_record, sample
     assert 'location' in resp.json
     assert re.match(f".*/draft/records/{drec_pid}/files/{key}$", resp.json['location'])
     # ------ get download url ------ :
-    resp = client.get(resp.json['location'])
+    headers = { 'Content-Type': 'application/json', 'Authorization': f"Bearer {oartoken.token}" }
+    resp = client.get(resp.json['location'], headers=headers)
     assert resp.status_code == 302
     assert re.match("https://.*", resp.headers['Location'])
     # ------ download ------ :

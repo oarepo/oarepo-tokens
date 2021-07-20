@@ -42,7 +42,7 @@ def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=N
         pid_minter=pid_type,
         pid_fetcher=pid_type,
         search_class=search_class,
-        indexer_class=RecordIndexer,
+        indexer_class=TestIndexer,
 #        links_factory_imp=community_record_links_factory,
         search_index='records-record-v1.0.0',
         search_type='_doc',
@@ -82,7 +82,7 @@ def gen_rest_endpoint_draft(pid_type, search_class, record_class, permission_fac
         pid_minter=pid_type,
         pid_fetcher=pid_type,
         search_class=search_class,
-        indexer_class=RecordIndexer,
+        indexer_class=TestIndexer,
 #        links_factory_imp=community_record_links_factory,
         search_index='draft-records-record-v1.0.0',
         search_type='_doc',
@@ -177,6 +177,11 @@ def record_pid_minter(record_uuid, data, pidstore_recid_field='id'):
 #     _bucket = SanitizedUnicode()
 #     # oarepo:draft = Integer()
 
+class TestIndexer(RecordIndexer):
+    """Fake record indexer."""
+
+    def index(self, record, arguments=None, **kwargs):
+        return {}
 
 class TestRecord(MarshmallowValidatedRecordMixin,
                 DraftRecordMixin,
@@ -196,4 +201,4 @@ class TestRecord(MarshmallowValidatedRecordMixin,
     @property
     def canonical_url(self):
         return url_for('invenio_records_rest.draft-record_item',
-                       pid_value=self['pid'], _external=True)
+                       pid_value=self['id'], _external=True)

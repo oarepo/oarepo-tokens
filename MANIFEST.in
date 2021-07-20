@@ -24,6 +24,8 @@ include *.sh
 include LICENSE
 include babel.ini
 include pytest.ini
+include scripts/init
+include scripts/bootstrap
 recursive-exclude tests *.py
 include *.yml
 recursive-exclude tests *.json

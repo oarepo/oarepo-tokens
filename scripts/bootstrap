@@ -11,4 +11,3 @@ set -e
 OPTS="--force-reinstall --no-cache-dir"
 cat .requirements.txt
 pip install $OPTS -r .requirements.txt
-pip install .

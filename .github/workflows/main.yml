@@ -82,11 +82,11 @@ jobs:
         run: |
           check-manifest
 
-          - name: Coveralls
-            uses: AndreMiras/coveralls-python-action@develop
-            with:
-              parallel: true
-              flag-name: Test with pytest
+      - name: Coveralls
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          parallel: true
+          flag-name: Test with pytest
 
   coveralls_finish:
     needs: build

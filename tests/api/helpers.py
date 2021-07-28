@@ -29,6 +29,7 @@ from invenio_records_rest.utils import allow_all, deny_all
 #from oarepo_tokens.api import OARepoCommunity
 from oarepo_tokens.models import OARepoAccessToken
 from oarepo_tokens.permissions import put_file_token_permission_factory
+from oarepo_tokens.views import  TokenEnabledDraftRecord
 from .constants import SAMPLE_ALLOWED_SCHEMAS, SAMPLE_PREFERRED_SCHEMA
 from .marshmallow import SampleSchemaV1
 
@@ -187,6 +188,7 @@ class TestRecord(MarshmallowValidatedRecordMixin,
                 DraftRecordMixin,
                 # SchemaKeepingRecordMixin,
                 ReferenceEnabledRecordMixin,
+                TokenEnabledDraftRecord,
                 Record):
     """Reference enabled test record class."""
     __test__ = False

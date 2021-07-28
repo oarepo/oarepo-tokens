@@ -14,6 +14,7 @@ from flask import Blueprint, jsonify, request, make_response, abort, url_for
 from flask.views import MethodView
 from werkzeug.utils import import_string
 from invenio_records_rest.views import pass_record, need_record_permission
+from oarepo_actions.decorators import action
 
 from oarepo_tokens.models import OARepoAccessToken
 
@@ -112,27 +113,14 @@ def tokens_cleanup():
     return token_list()
 
 
-class AccessTokenAction(MethodView):
-    view_name = '{endpoint}_access_token'
-
-    @pass_record
-    # @need_record_permission('update_permission_factory_imp')
-    def post(self, pid, record):
-        token = OARepoAccessToken.create(record.id)
+class TokenEnabledDraftRecord:
+    # @action(detail=True, url_path='create_token', method='post', permissions=)
+    @action(detail=True, url_path='create_token', method='post')
+    def create_token(self, record=None, *args, **kwargs):
+        token = OARepoAccessToken.create(self.id)
         rec = token.get_record()
         return jsonify({
             **token.to_json(),
             'links': token_links_factory(token),
-            # 'links': {
-                # 'create_token': url_for('oarepo_records_draft.draft-record_access_token', rec_uuid=record.id,
-                #                         _external=True),
-            # }
         })
 
-
-def action_factory(code, files, rest_endpoint, extra, is_draft):
-    return {
-        'create_token': AccessTokenAction.as_view(
-            AccessTokenAction.view_name.format(endpoint=code)
-        )
-    }

@@ -26,6 +26,7 @@ tests_require = [
     'oarepo_multilingual',
     'moto',
     'oarepo-s3',
+    'oarepo-actions',
 ]
 
 extras_require = {
@@ -87,9 +88,9 @@ setup(
         'invenio_db.alembic': [
             'oarepo_tokens = oarepo_tokens:alembic',
         ],
-        'oarepo_records_draft.extra_actions': [
-            'oarepo_tokens = oarepo_tokens.views:action_factory',
-        ],
+        # 'oarepo_records_draft.extra_actions': [
+        #     'oarepo_tokens = oarepo_tokens.views:action_factory',
+        # ],
     },
     extras_require=extras_require,
     install_requires=install_requires,

@@ -11,4 +11,4 @@ This file is imported by ``oarepo_tokens.__init__``,
 and parsed by ``setup.py``.
 """
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'

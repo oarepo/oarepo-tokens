@@ -15,3 +15,6 @@ Version 0.1.0 (released TBD)
 Version 0.1.2
 
 - Create_token API call rewrited using oarepo-actions.
+
+Version 0.1.3
+- revoke_token impl., permissions for create_token action added, sleeps on calls w. invalid token added

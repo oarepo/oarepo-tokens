@@ -5,4 +5,4 @@
 # OARepo-Tokens is free software; you can redistribute it and/or modify
 # it under the terms of the MIT License; see LICENSE file for more details.
 
-OAREPO_TOKENS_TOKEN_TTL = 10800
+OAREPO_TOKENS_TOKEN_TTL = 604800

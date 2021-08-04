@@ -5,8 +5,9 @@
 # OARepo-Tokens is free software; you can redistribute it and/or modify
 # it under the terms of the MIT License; see LICENSE file for more details.
 
-"""OARepo-Tokens tests constatnts."""
+"""OARepo-Tokens constatnts."""
 
+from invenio_records_rest.utils import deny_all, allow_all
 
-SAMPLE_ALLOWED_SCHEMAS = ['sample/sample-v1.0.0.json']
-SAMPLE_PREFERRED_SCHEMA = 'sample/sample-v1.0.0.json'
+INVALID_TOKEN_SLEEP = 4
+CREATE_TOKEN_PERMISSION = allow_all

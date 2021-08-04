@@ -11,3 +11,7 @@ Changes
 Version 0.1.0 (released TBD)
 
 - Initial public release.
+
+Version 0.1.2
+
+- Create_token API call rewrited using oarepo-actions.

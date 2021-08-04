@@ -29,7 +29,7 @@ from invenio_records_rest.utils import allow_all, deny_all
 #from oarepo_tokens.api import OARepoCommunity
 from oarepo_tokens.models import OARepoAccessToken
 from oarepo_tokens.permissions import put_file_token_permission_factory
-from oarepo_tokens.views import  TokenEnabledDraftRecord
+from oarepo_tokens.views import TokenEnabledDraftRecordMixin
 from .constants import SAMPLE_ALLOWED_SCHEMAS, SAMPLE_PREFERRED_SCHEMA
 from .marshmallow import SampleSchemaV1
 
@@ -188,9 +188,9 @@ class TestRecord(MarshmallowValidatedRecordMixin,
                 DraftRecordMixin,
                 # SchemaKeepingRecordMixin,
                 ReferenceEnabledRecordMixin,
-                TokenEnabledDraftRecord,
+                TokenEnabledDraftRecordMixin,
                 Record):
-    """Reference enabled test record class."""
+    """Token enabled test record class."""
     __test__ = False
     # ALLOWED_SCHEMAS = SAMPLE_ALLOWED_SCHEMAS
     ALLOWED_SCHEMAS = ['sample/sample-v1.0.0.json']
@@ -199,6 +199,7 @@ class TestRecord(MarshmallowValidatedRecordMixin,
     MARSHMALLOW_SCHEMA = SampleSchemaV1
     VALIDATE_MARSHMALLOW = True
     VALIDATE_PATCH = True
+    # CREATE_TOKEN_PERMISSION = allow_all
 
     @property
     def canonical_url(self):

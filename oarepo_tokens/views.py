@@ -8,15 +8,18 @@
 """OARepo-Tokens views."""
 
 import json
+import time
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request, make_response, abort, url_for
 from flask.views import MethodView
 from werkzeug.utils import import_string
 from invenio_records_rest.views import pass_record, need_record_permission
+from invenio_records_rest.utils import deny_all, allow_all
 from oarepo_actions.decorators import action
 
 from oarepo_tokens.models import OARepoAccessToken
+from oarepo_tokens.constants import INVALID_TOKEN_SLEEP, CREATE_TOKEN_PERMISSION
 
 
 def json_abort(status_code, detail):
@@ -96,6 +99,7 @@ def token_header_status():
     try:
         token = OARepoAccessToken.get_by_token(token_string)
     except:
+        time.sleep(INVALID_TOKEN_SLEEP)
         json_abort(401, {"message": f"Invalid token. ({token_string})"})
     return jsonify({
         **token.to_json(filter_out=['token']),
@@ -107,15 +111,33 @@ def token_header_status():
 
 @blueprint.route('/cleanup', strict_slashes=False)
 def tokens_cleanup():
-    """remove expired tokens"""
+    """remove expired tokens - could be scheduled task only, not API method"""
     dt_now = datetime.utcnow()
     OARepoAccessToken.delete_expired(dt_now)
     return token_list()
 
 
-class TokenEnabledDraftRecord:
-    # @action(detail=True, url_path='create_token', method='post', permissions=)
-    @action(detail=True, url_path='create_token', method='post')
+@blueprint.route('/revoke', strict_slashes=False)
+def revoke_token():
+    """revoke token"""
+    token_string = get_token_from_headers(request)
+    try:
+        token = OARepoAccessToken.get_by_token(token_string)
+        assert token.is_valid()
+    except:
+        time.sleep(INVALID_TOKEN_SLEEP)
+        json_abort(401, {"message": f"Invalid token. ({token_string})"})
+    token.revoke()
+    return jsonify({
+        **token.to_json(filter_out=['token']),
+        'token': token_string,
+        'status': token.get_status(),
+    })
+
+
+class TokenEnabledDraftRecordMixin:
+
+    @action(detail=True, url_path='create_token', method='post', permissions=CREATE_TOKEN_PERMISSION)
     def create_token(self, record=None, *args, **kwargs):
         token = OARepoAccessToken.create(self.id)
         rec = token.get_record()

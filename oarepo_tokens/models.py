@@ -147,6 +147,11 @@ class OARepoAccessToken(db.Model, Timestamp):
             db.session.delete(tok)
         db.session.commit()
 
+    def revoke(self):
+        """revoke token."""
+        self.not_after = datetime.utcnow()
+        db.session.commit()
+
     def is_valid(self):
         return self.not_after > datetime.utcnow()
 

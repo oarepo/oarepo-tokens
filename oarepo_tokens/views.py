@@ -102,7 +102,6 @@ def token_header_status():
         json_abort(401, {"message": f"Invalid token. ({token_string})"})
     return jsonify({
         **token.to_json(filter_out=['token']),
-        # 'token': token_string,
         'links': token_links_factory(token),
         'status': token.get_status(),
     })

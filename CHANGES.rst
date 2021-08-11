@@ -18,3 +18,7 @@ Version 0.1.2
 
 Version 0.1.3
 - revoke_token impl., permissions for create_token action added, sleeps on calls w. invalid token added
+
+Version 0.1.4
+- get_by_uuid returns all; disable token_detail
+

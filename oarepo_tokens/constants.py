@@ -10,4 +10,3 @@
 from invenio_records_rest.utils import deny_all, allow_all
 
 INVALID_TOKEN_SLEEP = 4
-CREATE_TOKEN_PERMISSION = allow_all

@@ -100,7 +100,8 @@ class OARepoAccessToken(db.Model, Timestamp):
         q = cls.query.filter_by(
             rec_uuid=rec_uuid
         )
-        return q.one_or_none()
+        # return q.one_or_none()
+        return q.all()
 
 
     @classmethod

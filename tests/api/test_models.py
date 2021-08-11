@@ -14,6 +14,7 @@ from oarepo_tokens.models import OARepoAccessToken
 from oarepo_tokens.views import check_token_with_record
 from .helpers import make_sample_token, TestRecord
 
+
 def _check_token(oartoken, draft_record):
     assert oartoken.rec_uuid == draft_record.id
     assert isinstance(oartoken.token, six.string_types)
@@ -37,9 +38,17 @@ def test_token_get(oartoken, draft_record):
 
 
 def test_get_by_uuid(oartoken, draft_record):
-    tok = OARepoAccessToken.get_by_uuid(draft_record.id)
-    assert tok is not None
-    _check_token(tok, draft_record)
+    toks = OARepoAccessToken.get_by_uuid(draft_record.id)
+    assert len(toks) > 0
+    for tok in toks:
+        assert tok is not None
+        _check_token(tok, draft_record)
+    tok2 = OARepoAccessToken.create(rec_uuid = draft_record.id)
+    toks = OARepoAccessToken.get_by_uuid(draft_record.id)
+    assert len(toks) > 1
+    for tok in toks:
+        assert tok is not None
+        _check_token(tok, draft_record)
 
 
 def test_get_by_token(oartoken, draft_record):
@@ -63,6 +72,14 @@ def test_check_token(oartoken, draft_record):
     assert rec['title']['en'] == "example draft record"
     assert 'init_upload' in rec
 
+
+def test_revoke_token(oartoken, draft_record):
+    tok = OARepoAccessToken.get_by_token(oartoken.token)
+    _check_token(tok, draft_record)
+    tok.revoke()
+    assert not tok.is_valid()
+
+
 def test_query_expired_delete_expired(oartoken, draft_record):
     ttl = load_or_import_from_config('OAREPO_TOKENS_TOKEN_TTL')
     assert isinstance(ttl, six.integer_types)
@@ -75,12 +92,3 @@ def test_query_expired_delete_expired(oartoken, draft_record):
     toks = OARepoAccessToken.query_expired(future_datetime)
     assert len(toks) == 0
     assert isinstance(toks, list)
-
-
-# def test_token_delete(oartoken):
-#     toks = OARepoAccessToken.query.all()
-#     assert len(toks) == 1
-#     db.session.delete(toks[0])
-#     db.session.commit()
-#     toks = OARepoAccessToken.query.all()
-#     assert len(toks) == 0

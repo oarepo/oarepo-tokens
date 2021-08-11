@@ -19,7 +19,7 @@ from invenio_records_rest.utils import deny_all, allow_all
 from oarepo_actions.decorators import action
 
 from oarepo_tokens.models import OARepoAccessToken
-from oarepo_tokens.constants import INVALID_TOKEN_SLEEP, CREATE_TOKEN_PERMISSION
+from oarepo_tokens.constants import *
 
 
 def json_abort(status_code, detail):
@@ -64,27 +64,26 @@ def token_list():
                                 } for token in tokens]})
 
 
-@blueprint.route('/<token_id>', strict_slashes=False)
-def token_detail(token_id):
-    """Access token detail."""
-    token = OARepoAccessToken.get(token_id)
-    if token:
-        return jsonify({
-            'links': token_links_factory(token),
-            # 'token': token.token,
-            'repr': token.__repr__(),
-            'status': token.get_status(),
-        })
-    json_abort(404, {
-        "message": "token %s was not found" % token_id
-    })
+# @blueprint.route('/<token_id>', strict_slashes=False)
+# def token_detail(token_id):
+#     """Access token detail."""
+#     token = OARepoAccessToken.get(token_id)
+#     if token:
+#         return jsonify({
+#             'links': token_links_factory(token),
+#             'repr': token.__repr__(),
+#             'status': token.get_status(),
+#         })
+#     json_abort(404, {
+#         "message": "token %s was not found" % token_id
+#     })
 
 
 def token_links_factory(token):
     """Links factory for token views."""
     rec = token.get_record()
     links = dict(
-        token_detail=url_for('oarepo_tokens.token_detail', token_id=token.id, _external=True),
+        # token_detail=url_for('oarepo_tokens.token_detail', token_id=token.id, _external=True),
     )
     if rec is not None:
         links['init_upload'] = rec['init_upload']
@@ -137,12 +136,19 @@ def revoke_token():
 
 class TokenEnabledDraftRecordMixin:
 
-    @action(detail=True, url_path='create_token', method='post', permissions=CREATE_TOKEN_PERMISSION)
+    @action(detail=True, url_path='create_token', method='post')
     def create_token(self, record=None, *args, **kwargs):
         token = OARepoAccessToken.create(self.id)
-        rec = token.get_record()
         return jsonify({
             **token.to_json(),
             'links': token_links_factory(token),
         })
+
+    # @action(detail=True, url_path='list_tokens', method='get')
+    # def list_tokens(self, record=None, *args, **kwargs):
+    #     toks = OARepoAccessToken.get_by_uuid(self.id)
+    #     return jsonify({
+    #         **token.to_json(),
+    #         'links': token_links_factory(token),
+    #     })
 

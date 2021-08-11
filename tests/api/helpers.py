@@ -199,7 +199,6 @@ class TestRecord(MarshmallowValidatedRecordMixin,
     MARSHMALLOW_SCHEMA = SampleSchemaV1
     VALIDATE_MARSHMALLOW = True
     VALIDATE_PATCH = True
-    # CREATE_TOKEN_PERMISSION = allow_all
 
     @property
     def canonical_url(self):

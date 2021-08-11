@@ -27,14 +27,14 @@ def test_token_list(client, oartoken):
     assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
 
 
-def test_token_detail(client, oartoken):
-    # resp = client.get(f"https://localhost/access-tokens/{oartoken.id}")
-    resp = client.get(f"/access-tokens/{oartoken.id}")
-    assert resp.status_code == 200
-    # assert resp.json['token'] == oartoken.token
-    assert resp.json['repr'] == oartoken.__repr__()
-    assert resp.json['status'] == 'OK'
-    assert OARepoAccessToken.get_by_token(oartoken.token).is_valid()
+# def test_token_detail(client, oartoken):
+#     # resp = client.get(f"https://localhost/access-tokens/{oartoken.id}")
+#     resp = client.get(f"/access-tokens/{oartoken.id}")
+#     assert resp.status_code == 200
+#     # assert resp.json['token'] == oartoken.token
+#     assert resp.json['repr'] == oartoken.__repr__()
+#     assert resp.json['status'] == 'OK'
+#     assert OARepoAccessToken.get_by_token(oartoken.token).is_valid()
 
 
 def test_create_token(app_config, client, draft_record):

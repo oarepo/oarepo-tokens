@@ -121,8 +121,7 @@ class OARepoAccessToken(db.Model, Timestamp):
             pid_pair = {'pid_type': pid.pid_type, 'pid_value': pid.pid_value}
             rh[pid.pid_type] = pid_pair
             ra.append(pid_pair)
-        # pid_type = rh['drcid']['pid_type'] if rh['drcid'] else ra[0]['pid_type']
-        pid_type = 'drcid' if rh['drcid'] else ra[0]['pid_type']
+        pid_type = 'drcid' if 'drcid' in rh else ra[0]['pid_type']
         endpoint: RecordEndpointConfiguration = current_drafts.endpoint_for_pid_type(pid_type)
         rec = endpoint.record_class.get_record(self.rec_uuid)
         rec['init_upload'] = url_for('oarepo_records_draft.draft-record_files',

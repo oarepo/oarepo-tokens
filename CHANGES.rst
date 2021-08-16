@@ -9,16 +9,19 @@ Changes
 =======
 
 Version 0.1.0 (released TBD)
-
-- Initial public release.
+ - Initial public release.
 
 Version 0.1.2
-
-- Create_token API call rewrited using oarepo-actions.
+ - Create_token API call rewrited using oarepo-actions.
 
 Version 0.1.3
-- revoke_token impl., permissions for create_token action added, sleeps on calls w. invalid token added
+ - revoke_token impl.
+ - permissions for create_token action added
+ - sleeps on calls w. invalid token added
 
 Version 0.1.4
-- get_by_uuid returns all; disable token_detail
+ - get_by_uuid returns all; disable token_detail
+
+Version 0.1.5
+ - pid_type test fixed
 

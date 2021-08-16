@@ -25,3 +25,6 @@ Version 0.1.4
 Version 0.1.5
  - pid_type test fixed
 
+Version 0.1.6
+ - versioning typo fixed
+

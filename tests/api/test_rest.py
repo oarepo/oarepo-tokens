@@ -10,19 +10,19 @@ import json
 import time
 import requests
 import re
-from flask import url_for
 from invenio_access import ActionRoles
 from invenio_accounts.models import Role, User
 from invenio_accounts.proxies import current_datastore
+from invenio_records_rest.utils import allow_all, deny_all
 
 from oarepo_tokens.models import OARepoAccessToken
-
+from tests.api.helpers import TestRecord
 
 def test_token_list(client, oartoken):
     # resp = client.get('https://localhost/access-tokens/')
     resp = client.get('/access-tokens/')
     assert resp.status_code == 200
-    assert len(resp.json) == 1
+    assert len(resp.json['tokens']) == 1
     assert resp.json['tokens'][0]['id'] == oartoken.id
     assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
 
@@ -36,12 +36,16 @@ def test_token_list(client, oartoken):
 #     assert resp.json['status'] == 'OK'
 #     assert OARepoAccessToken.get_by_token(oartoken.token).is_valid()
 
-
 def test_create_token(app_config, client, draft_record):
     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
     resp = client.get(f"/draft/records/{drec_pid}")
     assert resp.status_code == 200
     assert resp.json['id'] == str(drec_pid)
+    # testing deny as default:
+    resp = client.post(f"/draft/records/{drec_pid}/create_token")
+    assert resp.status_code == 401
+    # switch to allow (cond_flag returned from allow_conditionally(rec).can() in helpers.py):
+    draft_record['cond_flag'] = True
     resp = client.post(f"/draft/records/{drec_pid}/create_token")
     assert resp.status_code == 200
     assert resp.json['rec_uuid'] == str(draft_record.id)
@@ -55,6 +59,7 @@ def test_mocked_s3_client(app_config):
 def test_upload_abort(app, app_config, client, oartoken, draft_record, sample_upload_data):
     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
     assert drec_pid == '1'
+    print(type(draft_record))
     # ------ test record ------ :
     resp = client.get(f"/draft/records/{drec_pid}")
     assert resp.status_code == 200
@@ -62,6 +67,7 @@ def test_upload_abort(app, app_config, client, oartoken, draft_record, sample_up
     init_url = f"/draft/records/{drec_pid}/files/?multipart=true"
     headers = { 'Content-Type': 'application/json' }
     resp = client.post(init_url, data=sample_upload_data['fileinfo_json'], headers=headers)
+    print(resp.json)
     assert resp.status_code == 401
     # ------ init with token ------ :
     headers = { 'Content-Type': 'application/json', 'Authorization': f"Bearer {oartoken.token}" }

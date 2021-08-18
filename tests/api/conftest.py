@@ -148,6 +148,7 @@ def app_config(app_config):
         FILES_REST_MULTIPART_CHUNKSIZE_MIN=5 * 1024 * 1024,
         OAREPO_TOKENS_TOKEN_NAME='_oarepo_upload_token',
         OAREPO_TOKENS_TOKEN_TTL=600,
+        INDEXER_RECORD_TO_INDEX='tests.api.helpers.record_to_index_from_index_name',
     ))
     return app_config
 
@@ -194,7 +195,7 @@ def authenticated_user(db):
 def client(app, s3_location):
     """Get test client."""
     with app.test_client() as client:
-        print(app.url_map)
+        # print(app.url_map)
         yield client
 
 @pytest.fixture(scope='function')
@@ -271,14 +272,15 @@ def draft_record(app, app_config, db, s3_location, s3_bucket, s3storage, prepare
         "identifier": "test identifier",
         "created": datetime.utcnow().strftime(dformat),
         "modified": datetime.utcnow().strftime(dformat),
-        "creator": "pytest creator"
+        "creator": "pytest creator",
         # '$schema': SampleDraftRecord.PREFERRED_SCHEMA
+        "cond_flag": False,
     }
 
     pid = record_pid_minter(record_uuid, data=new_record, pidstore_recid_field=app_config['PIDSTORE_RECID_FIELD'])
     record = TestRecord.create(data=new_record, id_=record_uuid)
 
-    # RecordIndexer().index(record)
+    RecordIndexer().index(record)
     # current_search_client.indices.refresh()
     # current_search_client.indices.flush()
 

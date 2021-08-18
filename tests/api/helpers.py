@@ -15,6 +15,7 @@ from flask_security import login_user
 # from marshmallow.fields import URL, Integer, Nested
 from invenio_accounts.models import User
 from invenio_indexer.api import RecordIndexer
+from invenio_indexer.utils import default_record_to_index
 # from invenio_records import Record
 from invenio_records_files.api import Record
 from oarepo_records_draft.record import DraftRecordMixin
@@ -43,7 +44,7 @@ def gen_rest_endpoint(pid_type, search_class, record_class, permission_factory=N
         pid_minter=pid_type,
         pid_fetcher=pid_type,
         search_class=search_class,
-        indexer_class=TestIndexer,
+        indexer_class=RecordIndexer,
 #        links_factory_imp=community_record_links_factory,
         search_index='records-record-v1.0.0',
         search_type='_doc',
@@ -83,7 +84,7 @@ def gen_rest_endpoint_draft(pid_type, search_class, record_class, permission_fac
         pid_minter=pid_type,
         pid_fetcher=pid_type,
         search_class=search_class,
-        indexer_class=TestIndexer,
+        indexer_class=RecordIndexer,
 #        links_factory_imp=community_record_links_factory,
         search_index='draft-records-record-v1.0.0',
         search_type='_doc',
@@ -144,45 +145,27 @@ def record_pid_minter(record_uuid, data, pidstore_recid_field='id'):
     data[pidstore_recid_field] = provider.pid.pid_value
     return provider.pid
 
-# class TaxonomySchema(InlineReferenceMixin, Schema):
-#     """Taxonomy schema."""
-#
-#     class Meta:
-#         unknown = INCLUDE
-#
-#     def ref_url(self, data):
-#         return data.get('links').get('self')
-#
-#
-# class NestedTaxonomySchema(Schema):
-#     """Nested Taxonomy schema."""
-#     taxo2 = Nested(TaxonomySchema, required=False)
-#
-# class URLReferenceField(ReferenceByLinkFieldMixin, URL):
-#     """URL reference marshmallow field."""
-#
-# class URLReferenceSchema(Schema):
-#     """Schema for an URL reference."""
-#     title = SanitizedUnicode()
-#     ref = URLReferenceField(data_key='$ref', name='$ref', attribute='$ref')
-#
-#
-# class TestSchema(Schema):
-#     """Test record schema."""
-#     title = SanitizedUnicode()
-#     pid = Integer()
-#     taxo1 = Nested(TaxonomySchema, required=False)
-#     sub = Nested(NestedTaxonomySchema, required=False)
-#     ref = URLReferenceField(data_key='$ref', name='$ref', attribute='$ref', required=False)
-#     reflist = Nested(URLReferenceSchema, many=True, required=False)
-#     _bucket = SanitizedUnicode()
-#     # oarepo:draft = Integer()
 
-class TestIndexer(RecordIndexer):
-    """Fake record indexer."""
+def record_to_index_from_index_name(record):
+    """Get index/doc_type given a record. (from oarepo-micro-api)
 
-    def index(self, record, arguments=None, **kwargs):
-        return {}
+    It tries to extract from `record['index_name']` the index and doc_type.
+    If it fails, return the default values using default Invenio record_to_index.
+    :param record: The record object.
+    :returns: Tuple (index, doc_type).
+    """
+    index = getattr(record, 'index_name', None)
+    if index:
+        return index, '_doc'
+
+    return default_record_to_index(record)
+
+
+def allow_conditionally(record, *args, **kwargs):
+    def can(self):
+        return record['cond_flag']
+    return type('AllowCond', (), {'can': can})()
+
 
 class TestRecord(MarshmallowValidatedRecordMixin,
                 DraftRecordMixin,
@@ -199,6 +182,7 @@ class TestRecord(MarshmallowValidatedRecordMixin,
     MARSHMALLOW_SCHEMA = SampleSchemaV1
     VALIDATE_MARSHMALLOW = True
     VALIDATE_PATCH = True
+    CREATE_TOKEN_PERMISSION = allow_conditionally
 
     @property
     def canonical_url(self):

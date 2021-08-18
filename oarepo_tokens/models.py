@@ -10,7 +10,7 @@
 from invenio_db import db
 from base32_lib import base32
 from datetime import datetime, timedelta
-from flask import current_app, url_for
+from flask import current_app
 from sqlalchemy.dialects import mysql
 from sqlalchemy_utils.types import UUIDType
 from invenio_records.models import Timestamp
@@ -124,10 +124,8 @@ class OARepoAccessToken(db.Model, Timestamp):
         pid_type = 'drcid' if 'drcid' in rh else ra[0]['pid_type']
         endpoint: RecordEndpointConfiguration = current_drafts.endpoint_for_pid_type(pid_type)
         rec = endpoint.record_class.get_record(self.rec_uuid)
-        rec['init_upload'] = url_for('oarepo_records_draft.draft-record_files',
-                                        pid_value=rec['id'], _external=True, multipart='true')
-        rec['files'] = url_for('oarepo_records_draft.draft-record_files',
-                                        pid_value=rec['id'], _external=True)
+        rec['files'] = f"{rec.canonical_url}/files/"
+        rec['init_upload'] = f"{rec.canonical_url}/files/?multipart=true"
         return rec
 
 

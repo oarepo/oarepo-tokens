@@ -11,7 +11,7 @@ import json
 import time
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request, make_response, abort, url_for
+from flask import Blueprint, jsonify, request, make_response, abort
 from flask.views import MethodView
 from werkzeug.utils import import_string
 from invenio_records_rest.views import pass_record, need_record_permission
@@ -134,9 +134,12 @@ def revoke_token():
 
 
 class TokenEnabledDraftRecordMixin:
+    CREATE_TOKEN_PERMISSION = deny_all
 
     @action(detail=True, url_path='create_token', method='post')
-    def create_token(self, record=None, *args, **kwargs):
+    def create_token(self, *args, **kwargs):
+        if not self.CREATE_TOKEN_PERMISSION(self).can():
+            json_abort(401, {"message": f"Insufficient permissions to create upload token."})
         token = OARepoAccessToken.create(self.id)
         return jsonify({
             **token.to_json(),

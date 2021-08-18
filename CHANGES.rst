@@ -28,3 +28,6 @@ Version 0.1.5
 Version 0.1.6
  - versioning typo fixed
 
+Version 0.1.7
+ - added permission check on create_token
+ - fix: used canonical_url instead of url_for

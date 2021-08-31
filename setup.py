@@ -26,6 +26,7 @@ tests_require = [
     'oarepo_multilingual',
     'moto',
     'oarepo-s3',
+    'flask~=1.1.0',
     'oarepo-actions',
 ]
 
@@ -44,6 +45,14 @@ setup_requires = [
 ]
 
 install_requires = [
+    'oarepo_records_draft',
+    'oarepo_validate',
+    'oarepo_references',
+    'oarepo_fsm',
+    'oarepo_multilingual',
+    'oarepo-s3',
+    'flask~=1.1.0',
+    'oarepo-actions',
 ]
 
 packages = find_packages()

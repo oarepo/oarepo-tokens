@@ -18,23 +18,22 @@ from invenio_records_rest.utils import allow_all, deny_all
 from oarepo_tokens.models import OARepoAccessToken
 from tests.api.helpers import TestRecord
 
-def test_token_list(client, oartoken):
-    # resp = client.get('https://localhost/access-tokens/')
-    resp = client.get('/access-tokens/')
-    assert resp.status_code == 200
-    assert len(resp.json['tokens']) == 1
-    assert resp.json['tokens'][0]['id'] == oartoken.id
-    assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
-
-
-# def test_token_detail(client, oartoken):
-#     # resp = client.get(f"https://localhost/access-tokens/{oartoken.id}")
-#     resp = client.get(f"/access-tokens/{oartoken.id}")
+# def test_list_tokens(app_config, client, draft_record):
+#     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
+#     resp = client.get(f"/draft/records/{drec_pid}")
 #     assert resp.status_code == 200
-#     # assert resp.json['token'] == oartoken.token
-#     assert resp.json['repr'] == oartoken.__repr__()
-#     assert resp.json['status'] == 'OK'
-#     assert OARepoAccessToken.get_by_token(oartoken.token).is_valid()
+#     assert resp.json['id'] == str(drec_pid)
+#     # testing deny as default:
+#     resp = client.get(f"/draft/records/{drec_pid}/list_tokens")
+#     assert resp.status_code == 401
+#     # switch to allow (cond_flag returned from allow_conditionally(rec).can() in helpers.py):
+#     draft_record['cond_flag'] = True
+#     resp = client.get(f"/draft/records/{drec_pid}/list_tokens")
+#     assert resp.status_code == 200
+#     assert len(resp.json['tokens']) == 0
+#     # assert resp.json['tokens'][0]['id'] == oartoken.id
+#     # assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
+
 
 def test_create_token(app_config, client, draft_record):
     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
@@ -53,8 +52,10 @@ def test_create_token(app_config, client, draft_record):
     newtoken = OARepoAccessToken.get_by_token(newtoken_string)
     assert newtoken.is_valid()
 
+
 def test_mocked_s3_client(app_config):
     assert app_config['S3_CLIENT'] == 'tests.api.conftest.MockedS3Client'
+
 
 def test_upload_abort(app, app_config, client, oartoken, draft_record, sample_upload_data):
     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]

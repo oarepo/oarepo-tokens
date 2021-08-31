@@ -31,3 +31,7 @@ Version 0.1.6
 Version 0.1.7
  - added permission check on create_token
  - fix: used canonical_url instead of url_for
+
+Version 0.1.8
+ - oarepo-actions added to requires + flask ver.limited
+ 

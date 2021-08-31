@@ -124,8 +124,6 @@ class OARepoAccessToken(db.Model, Timestamp):
         pid_type = 'drcid' if 'drcid' in rh else ra[0]['pid_type']
         endpoint: RecordEndpointConfiguration = current_drafts.endpoint_for_pid_type(pid_type)
         rec = endpoint.record_class.get_record(self.rec_uuid)
-        rec['files'] = f"{rec.canonical_url}/files/"
-        rec['init_upload'] = f"{rec.canonical_url}/files/?multipart=true"
         return rec
 
 

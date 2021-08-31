@@ -112,7 +112,6 @@ def app_config(app_config):
         EMAIL_BACKEND='flask_email.backends.locmem.Mail',
         SECRET_KEY='TEST',
         SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite://'),
-        # SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:////home/tomash/work/cesnet/work/oarepo/s3/s3-cli/tmp/oardb1.sqlite'),
         SECURITY_DEPRECATED_PASSWORD_SCHEMES=[],
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SECURITY_PASSWORD_HASH='plaintext',
@@ -140,6 +139,7 @@ def app_config(app_config):
     app_config.update(dict(
     #     RATELIMIT_STORAGE_URL=None,
         CELERY_ALWAYS_EAGER=True,
+        CELERY_TASK_ALWAYS_EAGER=True,
         FILES_REST_STORAGE_FACTORY='oarepo_s3.storage.s3_storage_factory',
         S3_ENDPOINT_URL=None,
         S3_CLIENT='tests.api.conftest.MockedS3Client',
@@ -170,25 +170,10 @@ def users(base_app):
     yield [create_test_user('user{}@inveniosoftware.org'.format(i)) for i in range(3)]
 
 
-@pytest.fixture
+@pytest.fixture()
 def authenticated_user(db):
     """Authenticated user."""
     yield create_test_user('authed@inveniosoftware.org')
-
-
-# @pytest.fixture()
-# def files_tmp_location(app, db):
-#     try:
-#         from invenio_files_rest.models import Location
-#
-#         loc = Location()
-#         loc.name = 'test'
-#         loc.uri = Path(tempfile.gettempdir()).as_uri()
-#         loc.default = True
-#         db.session.add(loc)
-#         db.session.commit()
-#     except ImportError:
-#         pass
 
 
 @pytest.yield_fixture()
@@ -198,7 +183,7 @@ def client(app, s3_location):
         # print(app.url_map)
         yield client
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='module')
 def s3_bucket(appctx, base_app):
     """S3 bucket fixture."""
     with mock_s3():
@@ -216,13 +201,13 @@ def s3_bucket(appctx, base_app):
             obj.delete()
         bucket.delete()
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='module')
 def s3_testpath(s3_bucket):
     """S3 test path."""
     return 's3://{}/'.format(s3_bucket.name)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='module')
 def s3storage(s3_testpath):
     """Instance of S3FileStorage."""
     s3_storage = S3FileStorage(s3_testpath)
@@ -242,7 +227,7 @@ def s3_location(db, s3_testpath):
 
     yield loc
 
-@pytest.fixture()
+@pytest.fixture(scope='module')
 def sample_upload_data():
     key = 'testfile.dat'
     data = b'abcdefghijklmnop'
@@ -287,7 +272,7 @@ def draft_record(app, app_config, db, s3_location, s3_bucket, s3storage, prepare
     yield record
 
 
-@pytest.fixture
+@pytest.fixture()
 def oartoken(db, draft_record):
     """OARepoToken fixture."""
     oartoken = OARepoAccessToken.create(

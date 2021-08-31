@@ -54,29 +54,16 @@ blueprint = Blueprint(
 )
 
 
-@blueprint.route('/')
+# @blueprint.route('/')
 def token_list():
     """Access tokens list view."""
     tokens = OARepoAccessToken.query.all()
-    return jsonify({'tokens': [{'id': token.id,
-                                'repr': token.__repr__(),
-                                'status': token.get_status(),
-                                } for token in tokens]})
-
-
-# @blueprint.route('/<token_id>', strict_slashes=False)
-# def token_detail(token_id):
-#     """Access token detail."""
-#     token = OARepoAccessToken.get(token_id)
-#     if token:
-#         return jsonify({
-#             'links': token_links_factory(token),
-#             'repr': token.__repr__(),
-#             'status': token.get_status(),
-#         })
-#     json_abort(404, {
-#         "message": "token %s was not found" % token_id
-#     })
+    return jsonify({
+        'tokens': [{
+            'id': token.id,
+            'repr': token.__repr__(),
+            'status': token.get_status(),
+        } for token in tokens]})
 
 
 def token_links_factory(token):
@@ -86,8 +73,10 @@ def token_links_factory(token):
         # token_detail=url_for('oarepo_tokens.token_detail', token_id=token.id, _external=True),
     )
     if rec is not None:
-        links['init_upload'] = rec['init_upload']
-        links['files'] = rec['files']
+        links['record'] = rec.canonical_url
+        links['files'] = f"{rec.canonical_url}/files/"
+        links['revoke'] = f"{rec.canonical_url}/revoke_token/{token.id}"
+        links['init_upload'] = f"{links['files']}?multipart=true"
     return links
 
 
@@ -109,7 +98,7 @@ def token_header_status():
 
 @blueprint.route('/cleanup', strict_slashes=False)
 def tokens_cleanup():
-    """remove expired tokens - could be scheduled task only, not API method"""
+    """remove expired tokens - should be scheduled task only, not API method"""
     dt_now = datetime.utcnow()
     OARepoAccessToken.delete_expired(dt_now)
     return token_list()
@@ -139,6 +128,7 @@ class TokenEnabledDraftRecordMixin:
     @action(detail=True, url_path='create_token', method='post')
     def create_token(self, *args, **kwargs):
         if not self.CREATE_TOKEN_PERMISSION(self).can():
+            time.sleep(INVALID_TOKEN_SLEEP)
             json_abort(401, {"message": f"Insufficient permissions to create upload token."})
         token = OARepoAccessToken.create(self.id)
         return jsonify({
@@ -147,10 +137,31 @@ class TokenEnabledDraftRecordMixin:
         })
 
     # @action(detail=True, url_path='list_tokens', method='get')
-    # def list_tokens(self, record=None, *args, **kwargs):
-    #     toks = OARepoAccessToken.get_by_uuid(self.id)
+    # def list_tokens(self, *args, **kwargs):
+    #     if not self.CREATE_TOKEN_PERMISSION(self).can():
+    #         time.sleep(INVALID_TOKEN_SLEEP)
+    #         json_abort(401, {"message": f"Insufficient permissions to list upload tokens."})
+    #     tokens = OARepoAccessToken.get_by_uuid(self.id)
     #     return jsonify({
-    #         **token.to_json(),
-    #         'links': token_links_factory(token),
+    #         'tokens': [{
+    #             'id': token.id,
+    #             'repr': token.__repr__(),
+    #             'links': token_links_factory(token),
+    #             'status': token.get_status(),
+    #         } for token in tokens]})
+    #
+    # @action(detail=True, url_path='revoke_token/<token_id>', method='delete')
+    # def revoke_token(self, token_id, *args, **kwargs):
+    #     if not self.CREATE_TOKEN_PERMISSION(self).can():
+    #         time.sleep(INVALID_TOKEN_SLEEP)
+    #         json_abort(401, {"message": f"Insufficient permissions to revoke token."})
+    #     token = OARepoAccessToken.get(token_id)
+    #     if not token:
+    #         json_abort(404, {"message": f"token {token_id} was not found"})
+    #     token.revoke()
+    #     return jsonify({
+    #         **token.to_json(filter_out=['token']),
+    #         'status': token.get_status(),
     #     })
+
 

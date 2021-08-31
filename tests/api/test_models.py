@@ -70,7 +70,6 @@ def test_check_token(oartoken, draft_record):
     rec = tok.get_record()
     assert rec.id == draft_record.id
     assert rec['title']['en'] == "example draft record"
-    assert 'init_upload' in rec
 
 
 def test_revoke_token(oartoken, draft_record):

@@ -97,6 +97,9 @@ setup(
         'invenio_db.alembic': [
             'oarepo_tokens = oarepo_tokens:alembic',
         ],
+        'invenio_celery.tasks': [
+            'oarepo_tokens = oarepo_tokens.tasks',
+        ],
         # 'oarepo_records_draft.extra_actions': [
         #     'oarepo_tokens = oarepo_tokens.views:action_factory',
         # ],

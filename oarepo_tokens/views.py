@@ -96,15 +96,7 @@ def token_header_status():
     })
 
 
-@blueprint.route('/cleanup', strict_slashes=False)
-def tokens_cleanup():
-    """remove expired tokens - should be scheduled task only, not API method"""
-    dt_now = datetime.utcnow()
-    OARepoAccessToken.delete_expired(dt_now)
-    return token_list()
-
-
-@blueprint.route('/revoke', strict_slashes=False)
+@blueprint.route('/revoke', strict_slashes=False, methods=['post'])
 def revoke_token():
     """revoke token"""
     token_string = get_token_from_headers(request)
@@ -136,32 +128,32 @@ class TokenEnabledDraftRecordMixin:
             'links': token_links_factory(token),
         })
 
-    # @action(detail=True, url_path='list_tokens', method='get')
-    # def list_tokens(self, *args, **kwargs):
-    #     if not self.CREATE_TOKEN_PERMISSION(self).can():
-    #         time.sleep(INVALID_TOKEN_SLEEP)
-    #         json_abort(401, {"message": f"Insufficient permissions to list upload tokens."})
-    #     tokens = OARepoAccessToken.get_by_uuid(self.id)
-    #     return jsonify({
-    #         'tokens': [{
-    #             'id': token.id,
-    #             'repr': token.__repr__(),
-    #             'links': token_links_factory(token),
-    #             'status': token.get_status(),
-    #         } for token in tokens]})
-    #
-    # @action(detail=True, url_path='revoke_token/<token_id>', method='delete')
-    # def revoke_token(self, token_id, *args, **kwargs):
-    #     if not self.CREATE_TOKEN_PERMISSION(self).can():
-    #         time.sleep(INVALID_TOKEN_SLEEP)
-    #         json_abort(401, {"message": f"Insufficient permissions to revoke token."})
-    #     token = OARepoAccessToken.get(token_id)
-    #     if not token:
-    #         json_abort(404, {"message": f"token {token_id} was not found"})
-    #     token.revoke()
-    #     return jsonify({
-    #         **token.to_json(filter_out=['token']),
-    #         'status': token.get_status(),
-    #     })
+    @action(detail=True, url_path='access-tokens', method='get')
+    def list_tokens(self, *args, **kwargs):
+        if not self.CREATE_TOKEN_PERMISSION(self).can():
+            time.sleep(INVALID_TOKEN_SLEEP)
+            json_abort(401, {"message": f"Insufficient permissions to list upload tokens."})
+        tokens = OARepoAccessToken.get_by_uuid(self.id)
+        return jsonify({
+            'tokens': [{
+                'id': token.id,
+                'repr': token.__repr__(),
+                'links': token_links_factory(token),
+                'status': token.get_status(),
+            } for token in tokens]})
+
+    @action(detail=True, url_path='access-tokens/<token_id>', method='delete')
+    def revoke_token(self, token_id, *args, **kwargs):
+        if not self.CREATE_TOKEN_PERMISSION(self).can():
+            time.sleep(INVALID_TOKEN_SLEEP)
+            json_abort(401, {"message": f"Insufficient permissions to revoke token."})
+        token = OARepoAccessToken.get(token_id)
+        if not token:
+            json_abort(404, {"message": f"token {token_id} was not found"})
+        token.revoke()
+        return jsonify({
+            **token.to_json(filter_out=['token']),
+            'status': token.get_status(),
+        })
 
 

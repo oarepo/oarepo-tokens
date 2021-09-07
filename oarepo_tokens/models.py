@@ -138,10 +138,13 @@ class OARepoAccessToken(db.Model, Timestamp):
     @classmethod
     def delete_expired(cls, dt, token=None):
         """Delete expired tokens."""
+        removed = []
         toks = cls.query_expired(dt, token)
         for tok in toks:
+            removed.append(tok)
             db.session.delete(tok)
         db.session.commit()
+        return removed
 
     def revoke(self):
         """revoke token."""

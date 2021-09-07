@@ -18,21 +18,21 @@ from invenio_records_rest.utils import allow_all, deny_all
 from oarepo_tokens.models import OARepoAccessToken
 from tests.api.helpers import TestRecord
 
-# def test_list_tokens(app_config, client, draft_record):
-#     drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
-#     resp = client.get(f"/draft/records/{drec_pid}")
-#     assert resp.status_code == 200
-#     assert resp.json['id'] == str(drec_pid)
-#     # testing deny as default:
-#     resp = client.get(f"/draft/records/{drec_pid}/list_tokens")
-#     assert resp.status_code == 401
-#     # switch to allow (cond_flag returned from allow_conditionally(rec).can() in helpers.py):
-#     draft_record['cond_flag'] = True
-#     resp = client.get(f"/draft/records/{drec_pid}/list_tokens")
-#     assert resp.status_code == 200
-#     assert len(resp.json['tokens']) == 0
-#     # assert resp.json['tokens'][0]['id'] == oartoken.id
-#     # assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
+def test_list_tokens(app_config, client, draft_record):
+    drec_pid = draft_record[app_config['PIDSTORE_RECID_FIELD']]
+    resp = client.get(f"/draft/records/{drec_pid}")
+    assert resp.status_code == 200
+    assert resp.json['id'] == str(drec_pid)
+    # testing deny as default:
+    resp = client.get(f"/draft/records/{drec_pid}/access-tokens")
+    assert resp.status_code == 401
+    # switch to allow (cond_flag returned from allow_conditionally(rec).can() in helpers.py):
+    draft_record['cond_flag'] = True
+    resp = client.get(f"/draft/records/{drec_pid}/access-tokens")
+    assert resp.status_code == 200
+    assert len(resp.json['tokens']) == 0
+    # assert resp.json['tokens'][0]['id'] == oartoken.id
+    # assert resp.json['tokens'][0]['repr'] == oartoken.__repr__()
 
 
 def test_create_token(app_config, client, draft_record):

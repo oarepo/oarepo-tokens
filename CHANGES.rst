@@ -35,3 +35,5 @@ Version 0.1.7
 Version 0.1.8
  - oarepo-actions added to requires + flask ver.limited
  
+Version 0.1.9
+ - celery task; cleanup script; fixes;

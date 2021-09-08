@@ -26,6 +26,7 @@ include babel.ini
 include pytest.ini
 include scripts/init
 include scripts/bootstrap
+include scripts/*.sh
 recursive-exclude tests *.py
 include *.yml
 recursive-exclude tests *.json

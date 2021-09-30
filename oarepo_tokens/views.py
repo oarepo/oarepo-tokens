@@ -89,10 +89,12 @@ def token_header_status():
     except:
         time.sleep(INVALID_TOKEN_SLEEP)
         json_abort(401, {"message": f"Invalid token. ({token_string})"})
+    status = token.get_status()
+    if status != 'OK': time.sleep(INVALID_TOKEN_SLEEP)
     return jsonify({
         **token.to_json(filter_out=['token']),
         'links': token_links_factory(token),
-        'status': token.get_status(),
+        'status': status,
     })
 
 
@@ -117,7 +119,7 @@ def revoke_token():
 class TokenEnabledDraftRecordMixin:
     CREATE_TOKEN_PERMISSION = deny_all
 
-    @action(detail=True, url_path='create_token', method='post')
+    @action(detail=True, url_path='create_token', methods=['post'])
     def create_token(self, *args, **kwargs):
         if not self.CREATE_TOKEN_PERMISSION(self).can():
             time.sleep(INVALID_TOKEN_SLEEP)

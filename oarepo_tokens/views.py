@@ -119,7 +119,7 @@ def revoke_token():
 class TokenEnabledDraftRecordMixin:
     CREATE_TOKEN_PERMISSION = deny_all
 
-    @action(detail=True, url_path='create_token', methods=['post'])
+    @action(detail=True, url_path='create_token', method='post')
     def create_token(self, *args, **kwargs):
         if not self.CREATE_TOKEN_PERMISSION(self).can():
             time.sleep(INVALID_TOKEN_SLEEP)

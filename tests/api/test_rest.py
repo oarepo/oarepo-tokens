@@ -117,8 +117,8 @@ def test_upload_complete(app, app_config, client, oartoken, draft_record, sample
     resp = client.get(presign_url)
     # assert json.dumps(resp.json,indent=2) == ''
     assert resp.status_code == 200
-    assert 'url' in resp.json
-    part_url = resp.json['url']
+    assert 'presignedUrls' in resp.json
+    part_url = resp.json['presignedUrls'][str(partnum)]
     assert part_url
     # assert part_url == ''
     # ------ upload part 1 ------ :

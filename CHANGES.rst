@@ -37,3 +37,6 @@ Version 0.1.8
  
 Version 0.1.9
  - celery task; cleanup script; fixes;
+
+Version 0.1.10
+ - fix in tests
